@@ -1,0 +1,15 @@
+#bootstrap.servers=mano1.openstacklocal:6667,mano2.openstacklocal:6667,mano3.openstacklocal:6667
+bootstrap.servers=localhost:9092
+acks=1
+retries=99999
+#batch.size=100000
+auto.commit.interval.ms=1000
+#linger.ms=100
+key.serializer=org.apache.kafka.common.serialization.StringSerializer
+value.serializer=org.apache.kafka.common.serialization.ByteArraySerializer
+block.on.buffer.full=true
+//
+#security.protocol=PLAINTEXTSASL
+#sasl.mechanism=PLAIN
+
+max.request.size=1073741824
