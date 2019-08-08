@@ -14,88 +14,28 @@ import org.apache.kafka.common.{PartitionInfo, TopicPartition}
 
 import scala.collection.JavaConverters._
 
-object CustomGetOffsetShell {
+object GetOffsetCode
+{
 
   def main(args: Array[String]): Unit = {
     val parser = new OptionParser(false)
-    val brokerListOpt = parser.accepts("broker-list", "REQUIRED: The list of hostname and port of the server to connect to.")
-      .withRequiredArg
-      .describedAs("hostname:port,...,hostname:port")
-      .ofType(classOf[String])
-    val topicOpt = parser.accepts("topic", "REQUIRED: The topic to get offset from.")
-      .withRequiredArg
-      .describedAs("topic")
-      .ofType(classOf[String])
-    val partitionOpt = parser.accepts("partitions", "comma separated list of partition ids. If not specified, it will find offsets for all partitions")
-      .withRequiredArg
-      .describedAs("partition ids")
-      .ofType(classOf[String])
-      .defaultsTo("")
-    val timeOpt = parser.accepts("time", "timestamp of the offsets before that")
-      .withRequiredArg
-      .describedAs("timestamp/-1(latest)/-2(earliest)")
-      .ofType(classOf[java.lang.Long])
-      .defaultsTo(-1L)
-    parser.accepts("offsets", "DEPRECATED AND IGNORED: number of offsets returned")
-      .withRequiredArg
-      .describedAs("count")
-      .ofType(classOf[java.lang.Integer])
-      .defaultsTo(1)
-    parser.accepts("max-wait-ms", "DEPRECATED AND IGNORED: The max amount of time each fetch request waits.")
-      .withRequiredArg
-      .describedAs("ms")
-      .ofType(classOf[java.lang.Integer])
-      .defaultsTo(1000)
 
-    val consumerConfigOpt = parser.accepts("offset.config", s"Consumer config properties file.")
-      .withRequiredArg
-      .describedAs("config file")
-      .ofType(classOf[String])
-
-    if (args.length == 0)
-      CommandLineUtils.printUsageAndDie(parser, "An interactive shell for getting topic offsets.")
-
-    val options = parser.parse(args : _*)
-
-    CommandLineUtils.checkRequiredArgs(parser, options, brokerListOpt, topicOpt)
 
     val clientId = "GetOffsetShell"
-    val brokerList = options.valueOf(brokerListOpt)
-    ToolsUtils.validatePortOrDie(parser, brokerList)
-    val topic = options.valueOf(topicOpt)
-    val partitionIdsRequested: Set[Int] = {
-      val partitionsString = options.valueOf(partitionOpt)
-      if (partitionsString.isEmpty)
-        Set.empty
-      else
-        partitionsString.split(",").map { partitionString =>
-          try partitionString.toInt
-          catch {
-            case _: NumberFormatException =>
-              System.err.println(s"--partitions expects a comma separated list of numeric partition ids, but received: $partitionsString")
-              Exit.exit(1)
-          }
-        }.toSet
-    }
-    val listOffsetsTimestamp = options.valueOf(timeOpt).longValue
 
 
-    val config =
-      if (options.has(consumerConfigOpt))
-        Utils.loadProps(options.valueOf(consumerConfigOpt))
-      else new Properties
+    val partitionIdsRequested: Set[Int] = Set.empty
 
-    config.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, brokerList)
+    val topic = "mano"
+
+    val listOffsetsTimestamp = -1L
+    val config = new Properties
+
+
+    config.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "c127-node2:6667")
     config.setProperty(ConsumerConfig.CLIENT_ID_CONFIG, clientId)
 
 
-    val securityProtocol = config.getProperty(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG).toUpperCase(Locale.ROOT)
-    if (isSaslProtocol(securityProtocol)) {
-      config.setProperty(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, securityProtocol.toString);
-    }
-    else {
-      config.setProperty(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, CommonClientConfigs.DEFAULT_SECURITY_PROTOCOL);
-    }
     val consumer = new KafkaConsumer(config, new ByteArrayDeserializer, new ByteArrayDeserializer)
 
     val partitionInfos = listPartitionInfos(consumer, topic, partitionIdsRequested) match {
