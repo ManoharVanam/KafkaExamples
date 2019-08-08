@@ -3,6 +3,7 @@ package kafka.tools
 import java.util.{Locale, Properties}
 
 import joptsimple._
+import kafka.tools.CustomGetOffsetShell.isSaslProtocol
 import kafka.utils.{CommandLineUtils, Exit, ToolsUtils}
 import org.apache.kafka.clients.CommonClientConfigs
 import org.apache.kafka.clients.consumer.{ConsumerConfig, KafkaConsumer}
@@ -18,24 +19,25 @@ object GetOffsetCode
 {
 
   def main(args: Array[String]): Unit = {
-    val parser = new OptionParser(false)
-
 
     val clientId = "GetOffsetShell"
-
-
-    val partitionIdsRequested: Set[Int] = Set.empty
-
     val topic = "mano"
+    val bootstrapServer = "c127-node2:6667"
+    val securityProtocol = "PLAINTEXT"
 
     val listOffsetsTimestamp = -1L
+    val partitionIdsRequested: Set[Int] = Set.empty
+
     val config = new Properties
-
-
-    config.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "c127-node2:6667")
+    config.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServer)
     config.setProperty(ConsumerConfig.CLIENT_ID_CONFIG, clientId)
 
-
+    if (isSaslProtocol(securityProtocol)) {
+      config.setProperty(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, securityProtocol.toString);
+    }
+    else {
+      config.setProperty(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, CommonClientConfigs.DEFAULT_SECURITY_PROTOCOL);
+    }
     val consumer = new KafkaConsumer(config, new ByteArrayDeserializer, new ByteArrayDeserializer)
 
     val partitionInfos = listPartitionInfos(consumer, topic, partitionIdsRequested) match {
