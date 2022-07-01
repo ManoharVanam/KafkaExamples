@@ -71,7 +71,7 @@
     <dependency>
         <groupId>org.apache.kafka</groupId>
         <artifactId>kafka-clients</artifactId>
-            <version>0.10.1.2.6.0.3-8</version>
+            <version>0.10.2.2</version>
         <!--<version>0.10.0.2.6.0.0-504</version>-->
     </dependency>
     <dependency>
