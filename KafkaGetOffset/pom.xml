@@ -63,7 +63,7 @@
         <artifactId>kafka-clients</artifactId>
             <!--<version>0.10.1.2.6.0.3-8</version>-->
         <!--<version>0.10.0.2.6.0.0-504</version>-->
-        <version>2.0.0.3.1.0.4-1</version>
+        <version>2.6.3</version>
     </dependency>
     <dependency>
         <groupId>com.google.guava</groupId>
